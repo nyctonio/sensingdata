@@ -36,18 +36,6 @@ p{
   <%-include('sections/sidedata.ejs')-%>
 </div>
 
-<div class="calculation-box mx-2 w-20 bg-gray-600 h-10">
-  <div id="calculated-area">Area</div>
-</div>
-
-
-
-
-
-
-
-
-
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoiZ2RldmFjYyIsImEiOiJja3N3cHp2ejAyMXZpMndvZHZwM2gxb25oIn0.xZgIbExrP9V7sJPsnXShjw';
 const map = new mapboxgl.Map({
@@ -90,10 +78,8 @@ map.on('draw.modechange', (e) => {
   const data = draw.getAll();
   if (draw.getMode() == 'draw_polygon') {
     var pids = []
-
     // ID of the added template empty feature
     const lid = data.features[data.features.length - 1].id
-
     data.features.forEach((f) => {
       if (f.geometry.type === 'Polygon' && f.id !== lid) {
         pids.push(f.id)
@@ -112,7 +98,7 @@ function updateArea(e) {
     if (data.features.length > 0) {
     const area = turf.area(data);
     // Restrict the area to 2 decimal points.
-    let rounded_area = Math.round(area * 100) / 10000000;
+    let rounded_area = Math.round(area * 100) / 1000000;
     rounded_area=Math.round(rounded_area*100)/100;
         answer.innerHTML = `<strong>${rounded_area}</strong>Ha`;
     } else {
@@ -120,6 +106,56 @@ function updateArea(e) {
     if (e.type !== 'draw.delete')
         alert('Click the map to draw a polygon.');
     }
+}
+
+function clearpolygonarea(){
+  try {
+    const data = draw.getAll();
+    draw.delete(data.features[0].id)
+    console.log(data);
+  } catch (error) {
+    alert('please select a polygon')
+  }
+}
+
+async function createpolygon(){
+  try {
+    const data = draw.getAll();
+    let coordinates=data.features[0].geometry.coordinates[0];
+    const polygonname = document.getElementById('polygonname').value || 'Sample Polygon';
+    const postdata = {
+        "name":polygonname,
+        "geo_json":{
+           "type":"Feature",
+           "properties":{
+
+           },
+           "geometry":{
+              "type":"Polygon",
+              "coordinates":[
+                 coordinates
+              ]
+           }
+        }
+      }   
+      console.log(postdata)
+    const res = await fetch('http://api.agromonitoring.com/agro/1.0/polygons?appid=7aab8b8f813c852f1282ac4b242b5db2',{
+      method: "POST",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify(postdata)
+    });
+    if(res.statusText=='Created'){
+      alert('created')
+    }else{
+      alert(res.statusText);
+    }
+
+  } catch (error) {
+    alert('error occoured');
+  }
 }
 
 </script>
