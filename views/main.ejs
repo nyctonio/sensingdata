@@ -31,12 +31,20 @@ p{
 
 <body>
 
-<div class="flex">
+<div class="flex flex-wrap md:flex-nowrap">
   <div id='map' style='width: 750px; height: 550px;'></div>
-  <div class="calculation-box mx-2 w-20 bg-gray-600 h-10">
-      <div id="calculated-area">Area</div>
-  </div>
+  <%-include('sections/sidedata.ejs')-%>
 </div>
+
+<div class="calculation-box mx-2 w-20 bg-gray-600 h-10">
+  <div id="calculated-area">Area</div>
+</div>
+
+
+
+
+
+
 
 
 
